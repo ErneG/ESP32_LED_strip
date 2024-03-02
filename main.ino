@@ -19,13 +19,58 @@ const char index_html[] PROGMEM = R"rawliteral(
 <head>
   <title>ESP32 LED Control</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body { 
+      background-color: #121212; 
+      color: #E0E0E0; 
+      font-family: Arial, sans-serif; 
+      display: flex; 
+      flex-direction: column; 
+      align-items: center; 
+      justify-content: center; 
+      height: 100vh; 
+      margin: 0; 
+    }
+    h2 {
+      margin: 20px 0;
+    }
+    .row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 80%;
+      max-width: 500px;
+    }
+    button {
+      background-color: #333333; 
+      color: #FFFFFF; 
+      border: none; 
+      padding: 10px 20px; 
+      cursor: pointer; 
+      border-radius: 5px;
+      transition: background-color 0.3s ease;
+      flex-grow: 1; /* Make buttons grow to fill space */
+    }
+    button:hover {
+      background-color: #555555;
+    }
+    input[type="color"] {
+      border: 2px solid #333333; /* Make border visible */
+      padding: 2px; 
+      border-radius: 5px;
+      background-color: #FFF; /* Ensure color visibility */
+      margin-right: 10px;
+      cursor: pointer;
+      height: 38px; /* Match button height */
+    }
+  </style>
 </head>
 <body>
   <h2>ESP32 LED Control</h2>
-  <p><input type="color" id="color1"><button onclick="toggleLED(1)">Toggle LED 1</button></p>
-  <p><input type="color" id="color2"><button onclick="toggleLED(2)">Toggle LED 2</button></p>
-  <p><input type="color" id="color3"><button onclick="toggleLED(3)">Toggle LED 3</button></p>
-  <p><input type="color" id="color4"><button onclick="toggleLED(4)">Toggle LEDs 4 & 5</button></p>
+  <div class="row"><input type="color" id="color1"><button onclick="toggleLED(1)">Toggle LED 1</button></div>
+  <div class="row"><input type="color" id="color2"><button onclick="toggleLED(2)">Toggle LED 2</button></div>
+  <div class="row"><input type="color" id="color3"><button onclick="toggleLED(3)">Toggle LED 3</button></div>
+  <div class="row"><input type="color" id="color4"><button onclick="toggleLED(4)">Toggle LEDs 4 & 5</button></div>
 <script>
 function toggleLED(led) {
   const color = document.getElementById('color' + led).value.substring(1); // Remove '#' from color value
@@ -35,6 +80,7 @@ function toggleLED(led) {
 </body>
 </html>
 )rawliteral";
+
 
 void notFound(AsyncWebServerRequest *request) {
     request->send(404, "text/plain", "Not found");
@@ -101,5 +147,5 @@ void setup() {
 }
 
 void loop() {
-  // This is supposed to be empty
+   // This is supposed to be empty
 }
