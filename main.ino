@@ -3,7 +3,7 @@
 #include <FastLED.h>
 
 #define LED_PIN     13
-#define NUM_LEDS    30
+#define NUM_LEDS    55
 #define LED_TYPE    WS2812B
 #define COLOR_ORDER GRB
 CRGB leds[NUM_LEDS];
@@ -17,7 +17,7 @@ AsyncWebServer server(80);
 const char index_html[] PROGMEM = R"rawliteral(
 <!DOCTYPE HTML><html>
 <head>
-  <title>ESP32 LED Control</title>
+  <title>Maketa apgaismojums</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
     body { 
@@ -66,11 +66,11 @@ const char index_html[] PROGMEM = R"rawliteral(
   </style>
 </head>
 <body>
-  <h2>ESP32 LED Control</h2>
-  <div class="row"><input type="color" id="color1"><button onclick="toggleLED(1)">Toggle LED 1</button></div>
-  <div class="row"><input type="color" id="color2"><button onclick="toggleLED(2)">Toggle LED 2</button></div>
-  <div class="row"><input type="color" id="color3"><button onclick="toggleLED(3)">Toggle LED 3</button></div>
-  <div class="row"><input type="color" id="color4"><button onclick="toggleLED(4)">Toggle LEDs 4 & 5</button></div>
+  <h2>Maketa apgaismojums</h2>
+  <div class="row"><input type="color" id="color1"><button onclick="toggleLED(1)">LED 1</button></div>
+  <div class="row"><input type="color" id="color2"><button onclick="toggleLED(2)">LED 2</button></div>
+  <div class="row"><input type="color" id="color3"><button onclick="toggleLED(3)">LED 3</button></div>
+  <div class="row"><input type="color" id="color4"><button onclick="toggleLED(4)">LEDs 4 & 5</button></div>
 <script>
 function toggleLED(led) {
   const color = document.getElementById('color' + led).value.substring(1); // Remove '#' from color value
@@ -147,5 +147,5 @@ void setup() {
 }
 
 void loop() {
-   // This is supposed to be empty
+  // This is supposed to be empty
 }
