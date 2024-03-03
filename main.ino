@@ -9,8 +9,8 @@
 CRGB leds[NUM_LEDS];
 bool ledStates[NUM_LEDS] = {false}; // State tracking for LEDs
 
-const char* ssid = "makets";
-const char* password = "maketa_parole";
+const char* ssid = "THE_NAME_OF_YOUR_WIFI_NETWORK";
+const char* password = "THE_PASSWORD_OF_YOUR_WIFI_NETWORK";
 
 AsyncWebServer server(80);
 
