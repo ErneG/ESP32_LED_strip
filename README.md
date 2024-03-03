@@ -86,3 +86,17 @@ For a more robust solution, consider adding detailed error responses and logging
 ## Conclusion
 
 After following these steps, your ESP32 should host a web server that allows you to control LEDs through a simple web interface. Modify the code as needed to fit your project.
+
+## Parts List
+
+For this project, you will need the following parts, all of which can be found on AliExpress by searching for the exact terms provided. Reference the accompanying picture for more details on how to assemble these components.
+
+-   1x XL0401 diode
+-   1x Type C PD trigger board
+-   2x DC buck converter 2a
+-   1x MOSFET switch 15a
+-   1x ESP32 (any ESP32 board will do)
+-   1x 3s BMS (Battery Management System)
+-   3x 18650 cells
+
+Ensure you have all the necessary parts before starting the project to avoid any interruptions during the build process.
