@@ -7,7 +7,7 @@
 #define LED_TYPE    WS2812B
 #define COLOR_ORDER GRB
 CRGB leds[NUM_LEDS];
-bool ledStates[NUM_LEDS] = {false}; // State tracking for LEDs
+bool ledStates[NUM_LEDS] = {false};
 
 const char* ssid = "THE_NAME_OF_YOUR_WIFI_NETWORK";
 const char* password = "THE_PASSWORD_OF_YOUR_WIFI_NETWORK";
@@ -15,12 +15,12 @@ const char* password = "THE_PASSWORD_OF_YOUR_WIFI_NETWORK";
 AsyncWebServer server(80);
 
 const char index_html[] PROGMEM = R"rawliteral(
-<!DOCTYPE HTML><html>
+    <!DOCTYPE HTML><html>
 <head>
   <title>Maketa apgaismojums</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
-    body { 
+        body { 
       background-color: #121212; 
       color: #E0E0E0; 
       font-family: Arial, sans-serif; 
@@ -67,33 +67,45 @@ const char index_html[] PROGMEM = R"rawliteral(
 </head>
 <body>
   <h2>Maketa apgaismojums</h2>
-  <div class="row"><input type="color" id="color1"><button onclick="toggleLED(1)">LED 1</button></div>
-  <div class="row"><input type="color" id="color2"><button onclick="toggleLED(2)">LED 2</button></div>
-  <div class="row"><input type="color" id="color3"><button onclick="toggleLED(3)">LED 3</button></div>
-  <div class="row"><input type="color" id="color4"><button onclick="toggleLED(4)">LEDs 4 & 5</button></div>
+  <div class="row"><input type="color" id="color1" value="#00FF00"><button onclick="toggleLED(1)">Viesnīca</button></div>
+  <div class="row"><input type="color" id="color2" value="#00FF00"><button onclick="toggleLED(2)">Tirgus</button></div>
+  <div class="row"><input type="color" id="color3" value="#00FF00"><button onclick="toggleLED(3)">Skatu tornis</button></div>
+  <div class="row"><input type="color" id="color4" value="#00FF00"><button onclick="toggleLED(4,5)">Mākslinieku kvartāls</button></div>
 <script>
-function toggleLED(led) {
-  const color = document.getElementById('color' + led).value.substring(1); // Remove '#' from color value
-  fetch(`/toggle?led=${led}&color=${color}`);
+function toggleLED(...leds) {
+  const color = document.getElementById('color' + leds[0]).value.substring(1); // Remove '#' from color value
+  fetch(`/toggle?leds=${leds.join(',')}&color=${color}`);
 }
 </script>
 </body>
-</html>
-)rawliteral";
-
+</html>)rawliteral";
 
 void notFound(AsyncWebServerRequest *request) {
     request->send(404, "text/plain", "Not found");
 }
 
-// Function to toggle LED state
-void toggleLEDState(int led, int r, int g, int b) {
-    if (ledStates[led]) { // If already on, turn it off
-        leds[led] = CRGB::Black;
-    } else { // Else, turn it on with selected color
-        leds[led] = CRGB(r, g, b);
+void toggleLEDState(const int ledArray[], int arraySize, int r, int g, int b) {
+    bool tempStates[NUM_LEDS] = {false};
+    for (int i = 0; i < arraySize; i++) {
+        int led = ledArray[i];
+        if (led >= 0 && led < NUM_LEDS) {
+            tempStates[led] = true;
+            if (ledStates[led]) {
+                leds[led] = CRGB::Black;
+                ledStates[led] = false;
+            } else {
+                leds[led] = CRGB(r, g, b);
+                ledStates[led] = true;
+            }
+        }
     }
-    ledStates[led] = !ledStates[led]; // Update state
+    for (int i = 0; i < NUM_LEDS; i++) {
+        if (!tempStates[i] && ledStates[i]) {
+            leds[i] = CRGB::Black;
+            ledStates[i] = false;
+        }
+    }
+    FastLED.show();
 }
 
 void setup() {
@@ -104,16 +116,16 @@ void setup() {
 
   WiFi.softAP(ssid, password);
   Serial.println("Access Point Started");
-  Serial.print("IP Address: ");
   Serial.println(WiFi.softAPIP());
 
-  server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
+  // Define server routes
+  server.on("/", HTTP_GET, [](AsyncWebServerRequest *request) {
     request->send_P(200, "text/html", index_html);
   });
 
   server.on("/toggle", HTTP_GET, [] (AsyncWebServerRequest *request) {
-    if (request->hasParam("led") && request->hasParam("color")) {
-      int ledNum = request->getParam("led")->value().toInt();
+    if (request->hasParam("leds") && request->hasParam("color")) {
+      String ledString = request->getParam("leds")->value();
       String color = request->getParam("color")->value();
 
       long colorValue = strtol(color.c_str(), NULL, 16);
@@ -121,20 +133,18 @@ void setup() {
       int g = (colorValue >> 8) & 0xFF;
       int b = colorValue & 0xFF;
 
-      // Apply toggle logic based on the LED number
-      switch(ledNum) {
-        case 1:
-        case 2:
-        case 3:
-          toggleLEDState(ledNum - 1, r, g, b);
-          break;
-        case 4:
-          // Apply to both LEDs 4 and 5
-          toggleLEDState(3, r, g, b); // LED 4
-          toggleLEDState(4, r, g, b); // LED 5
-          break;
+      std::vector<int> ledIndexes;
+      int startIndex = 0, endIndex = 0;
+      while ((endIndex = ledString.indexOf(',', startIndex)) != -1) {
+        ledIndexes.push_back(ledString.substring(startIndex, endIndex).toInt() - 1);
+        startIndex = endIndex + 1;
       }
-      FastLED.show();
+      ledIndexes.push_back(ledString.substring(startIndex).toInt() - 1);
+
+      int ledArray[ledIndexes.size()];
+      std::copy(ledIndexes.begin(), ledIndexes.end(), ledArray);
+
+      toggleLEDState(ledArray, ledIndexes.size(), r, g, b);
       request->send(200, "text/plain", "OK");
     } else {
       request->send(400, "text/plain", "Bad Request");
@@ -147,5 +157,5 @@ void setup() {
 }
 
 void loop() {
-  // This is supposed to be empty
+  // Intentionally left empty
 }
